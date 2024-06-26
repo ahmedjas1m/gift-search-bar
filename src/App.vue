@@ -6,33 +6,35 @@ const searchTerm = ref('')
 
 const isLoading = ref(false)
 
-function debounce(ck) {
+function debounce(cb) {
   let timer
   return () => {
     clearTimeout(timer)
     timer = setTimeout(() => {
-      ck()
+      cb()
     }, 300)
   }
 }
 
-const createDebounce = debounce(async term => {
+const createDebounce = debounce(async () => {
   try {
-    if (term.length === 0) return (products.value = [])
+    if (searchTerm.value.length === 0) return (products.value = [])
     isLoading.value = true
-    const apiResponseBody = await (await fetch(`https://dummyjson.com/products/search?q=${term}&limit=5`)).json()
+    const apiResponseBody = await (
+      await fetch(`https://dummyjson.com/products/search?q=${searchTerm.value}&limit=5`)
+    ).json()
     products.value = apiResponseBody.products
   } catch (error) {
-    console.error(error)
+    console.log(error)
     alert('Holy cow!')
   } finally {
     isLoading.value = false
   }
 })
 
-const findProducts = term => createDebounce(term)
+const findProducts = () => createDebounce()
 
-watch(searchTerm, newTerm => findProducts(newTerm))
+watch(searchTerm, () => findProducts())
 </script>
 
 <template>
